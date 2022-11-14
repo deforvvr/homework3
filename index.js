@@ -11,7 +11,7 @@ async function openDB() {
 
 const db = await openDB();
 const app = express();
-const port = 3002;
+const port = 3000;
 
 app.get("/", async (req, res) => {
   const result = await db.all("SELECT * FROM database");
@@ -39,27 +39,23 @@ app.get("/deleteItem", async (req, res) => {
   res.send(result);
 });
 
-app.get("/getListAsc", async (req, res) => {
+app.get("/getList", async (req, res) => {
+  
+  let sort = "ASC"
+  if (req.query.order && req.query.order.toLowerCase() === "desc")
+  {
+    sort = "DESC";
+  }
+  
   const result = await db.all(
-    "SELECT * FROM database ORDER BY date ASC LIMIT :first, :second",
+    "SELECT * FROM database ORDER BY date " + sort +" LIMIT :first, :second",
     {
-      ":first": req.query.first,
-      ":second": req.query.second,
+      ":first": req.query.first || 0,
+      ":second": req.query.second || 99999,
     }
   );
   res.send(result);
 });
 
-
-app.get("/getListDesc", async (req, res) => {
-  const result = await db.all(
-    "SELECT * FROM database ORDER BY date DESC LIMIT :first, :second",
-    {
-      ":first": req.query.first,
-      ":second": req.query.second,
-    }
-  );
-  res.send(result);
-});
 
 app.listen(port);
